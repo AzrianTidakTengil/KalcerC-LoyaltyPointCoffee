@@ -1,0 +1,73 @@
+# === Node.js / Next.js ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.next/
+out/
+dist/
+.env
+.env.*.local
+*.local
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+.eggs/
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+pip-wheel-metadata/
+*.log
+*.pot
+*.pyc
+*.sqlite3
+.env/
+.venv/
+venv/
+ENV/
+env/
+instance/
+*.db
+*.bak
+*.tmp
+*.swp
+
+# If using Django
+migrations/
+
+# === Conda ===
+*.conda
+*.ipynb_checkpoints
+*.lock
+*.DS_Store
+environment.yml
+
+# === macOS ===
+.DS_Store
+
+# === Windows ===
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# === VSCode / IDEs ===
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# === Others ===
+*.log
+*.bak
+*.tmp
+
+# Ignore generated docs
+docs/_build/

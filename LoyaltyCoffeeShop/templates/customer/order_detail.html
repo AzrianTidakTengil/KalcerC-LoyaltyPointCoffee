@@ -1,0 +1,67 @@
+{%extends 'layouts/blank.html' %}
+{% load static %} 
+
+{% block title %}Order Detail{% endblock %}
+{% block content %}
+<div class="flex justify-center items-start min-h-screen p-6">
+  <div class="max-w-md w-full bg-seasalt/90 p-8 rounded-2xl shadow-xl border border-ebony-700 backdrop-blur-md">
+    <h2 class="text-3xl font-extrabold mb-6 text-center text-copperplate tracking-wide">📜 Order Detail</h2>
+    <!-- Order Information -->
+    {% if order.status == 'completed' %}
+      <div class="mb-5 bg-green-100 p-4 rounded-xl shadow-inner border border-green-200">
+        <p class="text-sm font-semibold text-green-800 mb-2">
+          Status: <span class="font-normal text-green-700">Completed</span>
+        </p>
+      </div>
+    {% else %}
+      <div class="mb-5 bg-yellow-100 p-4 rounded-xl shadow-inner border border-yellow-200">
+        <p class="text-sm font-semibold text-yellow-800 mb-2">
+          Status: <span class="font-normal text-yellow-700">Pending</span>
+        </p>
+      </div>
+    {% endif %}
+    <div class="bg-silver-800/40 p-4 rounded-xl shadow-inner border border-jet-100/10 space-y-2">
+      <p class="text-sm font-semibold text-jet">
+        Order ID: <span class="font-normal text-umber">{{ order.id }}</span>
+      </p>
+      <p class="text-sm font-semibold text-jet">
+        Order Date: <span class="font-normal text-umber">{{ order.date|date:"Y-m-d H:i:s" }}</span>
+      </p>
+      <p class="text-sm font-semibold text-jet">
+        Customer: <span class="font-normal text-umber">{{ order.customer.name }}</span>
+      </p>
+      <div class="border-t border-jet/10 pt-2 space-y-1">
+        <p class="text-sm font-semibold text-jet">
+          Subtotal: <span class="font-normal text-umber">Rp. {{ order.subtotal }}</span>
+        </p>
+        <p class="text-sm font-semibold text-jet">
+          Tax: <span class="font-normal text-umber">Rp. {{ order.tax }}</span>
+        </p>
+        <p class="text-sm font-semibold text-jet">
+          Total Amount: <span class="font-normal text-umber">Rp. {{ order.total_amount }}</span>
+        </p>
+      </div>
+    </div>
+    <h3 class="text-lg font-semibold mb-3"> Items:</h3>
+    <ul class="space-y-2">
+      {% for item in order.items.all %}
+        <li class="flex flex-col sm:flex-row sm:justify-between bg-ivory/60 p-3 rounded-xl shadow hover:bg-ivory transition border border-jet-100/10">
+          <span class="font-semibold text-jet">{{ item.product.name }}</span>
+          <div class="flex space-x-3 text-sm mt-1 sm:mt-0">
+            <span>Qty: {{ item.quantity }}</span>
+            <span>Rp. {{ item.product.price }}</span>
+          </div>
+        </li>
+      {% empty %}
+        <li class=" italic">No items in this order.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% endblock content %}
+{% block script %}
+    <script>
+        
+    </script>
+{% endblock script %}

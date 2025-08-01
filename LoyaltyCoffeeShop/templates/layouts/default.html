@@ -1,0 +1,157 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KalcerC - {% block title %}{% endblock %}</title>
+    <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montagu+Slab:opsz,wght@16..144,100..700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style type="text/tailwindcss">
+      @theme {
+        --font-display: "Montagu Slab", serif;
+        --font-body: "Noto Sans", sans-serif;
+
+        --color-ebony: #596156;
+        --color-ebony-100: #121311;
+        --color-ebony-200: #242723;
+        --color-ebony-300: #363a34;
+        --color-ebony-400: #474e45;
+        --color-ebony-500: #596156;
+        --color-ebony-600: #798475;
+        --color-ebony-700: #9aa397;
+        --color-ebony-800: #bcc2ba;
+        --color-ebony-900: #dde0dc;
+
+        --color-silver: #cbc4bc;
+        --color-silver-100: #2c2822;
+        --color-silver-200: #594f44;
+        --color-silver-300: #857766;
+        --color-silver-400: #aa9e90;
+        --color-silver-500: #cbc4bc;
+        --color-silver-600: #d6d0ca;
+        --color-silver-700: #e0dcd7;
+        --color-silver-800: #ebe8e4;
+        --color-silver-900: #f5f3f2;
+
+        --color-jet: #28292a;
+        --color-jet-100: #080808;
+        --color-jet-200: #101011;
+        --color-jet-300: #181819;
+        --color-jet-400: #202121;
+        --color-jet-500: #28292a;
+        --color-jet-600: #525455;
+        --color-jet-700: #7c7e81;
+        --color-jet-800: #a8a9ab;
+        --color-jet-900: #d3d4d5;
+
+        --color-seasalt: #fbfbfa;
+        --color-seasalt-100: #37372c;
+        --color-seasalt-200: #6f6f59;
+        --color-seasalt-300: #a1a18a;
+        --color-seasalt-400: #cecec2;
+        --color-seasalt-500: #fbfbfa;
+        --color-seasalt-600: #fbfbfa;
+        --color-seasalt-700: #fcfcfc;
+        --color-seasalt-800: #fdfdfd;
+        --color-seasalt-900: #fefefe;
+      }
+    </style>
+    <style>
+        body {
+            font-family: var(--font-body);
+            background-color: #ebe8e4;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-display);
+        }
+    </style>
+    <script>
+      function GoToCategory(category) {
+        const element = document.getElementById(category);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          window.location.href = `/#${category}`;
+        }
+      }
+
+      document.getElementById('coffe').scrollIntoView({ behavior: 'smooth',  block: "center" });
+      document.getElementById('noncoffee').scrollIntoView({ behavior: 'smooth',  block: "center" });
+      document.getElementById('pastry').scrollIntoView({ behavior: 'smooth',  block: "center" });
+      document.getElementById('snacks').scrollIntoView({ behavior: 'smooth',  block: "center" });
+
+    </script>
+    {% block style %}{% endblock %}
+    {% block script %}{% endblock %}
+  </head>
+  <body class="px-4 py-8">
+    <nav
+      class="fixed top-0 left-0 right-0 bg-ebony shadow-lg grid grid-cols-12 p-4 z-10"
+    >
+      <div class="col-span-2">
+        <a href="{% url 'menu' %}" class="no-underline text-xl font-bold"
+          >
+            <img 
+            src="{% static 'image/icon-1-dark.png' %}" 
+            class="w-16 object-contain scale-200 mx-8" 
+            alt="Icon Display"/>
+          </a
+        >
+      </div>
+      <div class="flex space-x-4 text-md text-md font-light *:text-seasalt *:hover:text-seasalt *:cursor-pointer col-span-8 justify-center">
+        <button
+          onclick="GoToCategory('coffe')"
+        >
+          Coffee
+        </button>
+        <button
+          onclick="GoToCategory('noncoffee')"
+        >
+          Non Coffee
+        </button>
+        <button
+          onclick="GoToCategory('pastry')"
+        >
+          Pastry
+        </button>
+        <button
+          onclick="GoToCategory('snacks')"
+        >
+          Snacks
+        </button>
+      </div>
+      <div class="flex items-center justify-end space-x-4 col-span-2">
+        {% if user %}
+        <a href="{% url 'profile' %}" class="no-underline text-xl font-seminold">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-silver lucide lucide-circle-user-round-icon lucide-circle-user-round" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
+        </a>
+        {% else %}
+        <button
+          class="no-underline font-seminold border-jet rounded px-4 py-2 hover:bg-jet-500 text-seasalt transition"
+        >
+          <a href="{% url 'login' %}">Login</a>
+        </button>
+        <button
+          class="no-underline font-seminold bg-silver rounded px-4 py-2 hover:bg-silver-400 hover:text-jet transition text-jet"
+        >
+          <a href="{% url 'register' %}">Register</a>
+        </button>
+        {% endif %}
+      </div>
+    </nav>
+    <main class="mt-24">{% block content %}{% endblock %}</main>
+    <footer class="mt-8 text-center font-seminold text-jet">
+      <!-- Svg line  -->
+      <p>&copy; 2025 KalcerC. All rights reserved.</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KalcerC - {% block title %}{% endblock %}</title>
+    <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montagu+Slab:opsz,wght@16..144,100..700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style type="text/tailwindcss">
+        @theme {
+        --font-display: "Montagu Slab", serif;
+        --font-body: "Noto Sans", sans-serif;
+
+        --color-ebony: #596156;
+        --color-ebony-100: #121311;
+        --color-ebony-200: #242723;
+        --color-ebony-300: #363a34;
+        --color-ebony-400: #474e45;
+        --color-ebony-500: #596156;
+        --color-ebony-600: #798475;
+        --color-ebony-700: #9aa397;
+        --color-ebony-800: #bcc2ba;
+        --color-ebony-900: #dde0dc;
+
+        --color-silver: #cbc4bc;
+        --color-silver-100: #2c2822;
+        --color-silver-200: #594f44;
+        --color-silver-300: #857766;
+        --color-silver-400: #aa9e90;
+        --color-silver-500: #cbc4bc;
+        --color-silver-600: #d6d0ca;
+        --color-silver-700: #e0dcd7;
+        --color-silver-800: #ebe8e4;
+        --color-silver-900: #f5f3f2;
+
+        --color-jet: #28292a;
+        --color-jet-100: #080808;
+        --color-jet-200: #101011;
+        --color-jet-300: #181819;
+        --color-jet-400: #202121;
+        --color-jet-500: #28292a;
+        --color-jet-600: #525455;
+        --color-jet-700: #7c7e81;
+        --color-jet-800: #a8a9ab;
+        --color-jet-900: #d3d4d5;
+
+        --color-seasalt: #fbfbfa;
+        --color-seasalt-100: #37372c;
+        --color-seasalt-200: #6f6f59;
+        --color-seasalt-300: #a1a18a;
+        --color-seasalt-400: #cecec2;
+        --color-seasalt-500: #fbfbfa;
+        --color-seasalt-600: #fbfbfa;
+        --color-seasalt-700: #fcfcfc;
+        --color-seasalt-800: #fdfdfd;
+        --color-seasalt-900: #fefefe;
+        }
+    </style>
+    <style>
+        body {
+            font-family: var(--font-body);
+            height: 100vh;
+            overflow: hidden;
+            background-color: #ebe8e4;
+        }
+        h1, h2, h3 {
+            font-family: var(--font-display);
+        }
+    </style>
+    {% block style %}{% endblock %}
+    {% block script %}{% endblock %}
+  </head>
+  <body class="px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 h-[85dvh]">
+      <a href="{% url 'menu' %}" class="no-underline">
+        <img 
+          src="{% static 'image/icon-1-dark.png' %}" 
+          class="w-auto object-cover mx-auto hover:scale-110 transition-transform duration-300" 
+          alt="Icon Display"/>
+      </a>
+      <main>{% block content %}{% endblock %}</main>
+    </div>
+    <footer class="mt-8 text-center font-seminold text-jet">
+      <!-- Svg line  -->
+      <p>&copy; 2025 KalcerC. All rights reserved.</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,283 @@
+{% extends 'layouts/default.html' %}
+{% load static %} 
+
+{% block title %}Menu{%endblock %}
+{% block content %}
+<h2 id="coffe" class="text-4xl font-display">Coffee</h2>
+<div class="flex flex-col items-center md:grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+  {% for product in products %}
+  <div
+    class="max-w-xs bg-cover bg-no-repeat border-2 border-ebony-700 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition"
+  >
+    <img
+      src="{% static 'image/example-coffee.jpg' %}"
+      alt="Handwoven Batik Scarf"
+      class="w-full object-cover"
+    />
+    <div class="p-4 bg-seasalt/90" id="{{ product.id}}">
+      <h3 class="text-lg font-semibold text-ebony-100 font-body">
+        {{ product.name }}
+      </h3>
+      <p class="text-sm text-jet-400 mb-3 font-body">
+        Natural dyes • Crafted in Java
+      </p>
+      <div class="flex justify-between items-center">
+        <span class="text-jet font-bold text-base font-body"
+          >Rp. {{ product.price }}</span
+        >
+        <button
+          onclick="AddToCart(this)"
+          class="bg-silver-300 text-white px-3 py-1 rounded hover:bg-silver-200 transition"
+        >
+          Add to Cart
+        </button>
+        <div class="hidden flex items-center space-x-2">
+          <button data-id="{{ product.id }}" class="minus-btn bg-silver-300 text-seasalt px-2 py-1 rounded hover:bg-silver-200 transition">-</button>
+            <span data-id-qty="{{ product.id }}" class="item-qty text-lg font-semibold">1</span>
+          <button data-id="{{ product.id }}" class="plus-btn bg-silver-300 text-seasalt px-2 py-1 rounded hover:bg-silver-200 transition">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<h2 class="text-4xl font-display mt-16" id="noncoffee">Non Coffee</h2>
+<h2 class="text-4xl font-display mt-16" id="pastry">Pastry</h2>
+<h2 class="text-4xl font-display mt-16" id="snacks">Snacks</h2>
+
+<div id="cartModal" class="fixed inset-0 bg-jet-500/40 hidden items-center justify-center z-50">
+  <div class="relative w-full max-w-xl bg-seasalt/90 rounded-2xl shadow-2xl p-6">
+    <button onclick="CloseModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl transition">
+      &times;
+    </button>
+    <h2 class="text-2xl font-bold mb-6 text-center">Pesanan Anda</h2>
+
+    <div id="cartItems" class="space-y-3 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent pr-2">
+      <!-- Cart items will be dynamically added here -->
+    </div>
+
+    <div class="mt-6 border-t border-gray-300 pt-4 space-y-3">
+      <div class="flex justify-between items-center">
+        <span class="text-base text-gray-700">Subtotal:</span>
+        <span id="cartSubTotal" class="text-base font-semibold text-gray-800">Rp. 0</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-base text-gray-700">Pajak (15%):</span>
+        <span id="cartTax" class="text-base font-semibold text-gray-800">Rp. 0</span>
+      </div>
+      <div class="border-t border-gray-300 pt-3 flex justify-between items-center">
+        <span class="text-lg font-bold text-gray-900">Total:</span>
+        <span id="cartTotal" class="text-lg font-extrabold text-gray-900">Rp. 0</span>
+      </div>
+    </div>
+
+    <button id="checkoutBtn" onclick="Checkout()" class="mt-6 w-full bg-ebony-600 text-white py-3 rounded-lg font-semibold hover:bg-ebony focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+      Checkout
+    </button>
+  </div>
+</div>
+
+<button
+  onclick="OpenModal()"
+  class="fixed bottom-8 right-8 text-2xl rounded-full bg-ebony hover:bg-ebony-400 p-4"
+>
+  <img src="{% static 'svg/shopping-bag.svg' %}" />
+  <span
+    id="cartCount"
+    class="absolute -top-1 -right-1 bg-silver text-jet text-xs w-5 h-5 flex items-center justify-center rounded-full"
+    >0</span
+  >
+</button>
+{% endblock %} {% block script %}
+<script>
+  function OpenModal() {
+    UpdateCartTotal(); // Update the cart total when opening the modal
+
+    const modal = document.getElementById("cartModal");
+    modal.style.display = "flex";
+  }
+
+  function CloseModal() {
+    const modal = document.getElementById("cartModal");
+    modal.style.display = "none";
+  }
+
+  function AddToCart(e) {
+  const el = e.parentElement.parentElement;
+  const cartItems = document.getElementById('cartItems');
+
+  const product = {
+    id: el.id,
+    name: el.querySelector('h3').textContent,
+    price: parseInt(el.querySelector('span').textContent.replace('Rp. ', ''))
+  };
+
+  let existingItem = cartItems.querySelector(`[data-cart-id="${product.id}"]`);
+
+  if (existingItem) {
+    // Increment quantity
+    let qty = parseInt(existingItem.getAttribute('data-qty')) || 1;
+    qty += 1;
+    existingItem.setAttribute('data-qty', qty);
+
+    // Update name to show quantity
+    existingItem.querySelector('.item-name').textContent = `${product.name} ×${qty}`;
+
+    // Update total price (price × quantity)
+    existingItem.querySelector('.item-price').textContent = `Rp. ${product.price * qty}`;
+  } else {
+    // New item with quantity = 1
+    const newItem = document.createElement('div');
+    newItem.className = 'flex justify-between border-b pb-1 items-center';
+    newItem.setAttribute('data-cart-id', product.id);
+    newItem.setAttribute('data-qty', 1);
+    newItem.setAttribute('data-price', product.price);
+
+    newItem.innerHTML = `
+      <div class="flex items-center space-x-2">
+        <span class="item-name font-semibold">${product.name}</span>
+        <span class="item-qty text-sm text-gray-500">×1</span>
+      </div>
+      <span class="item-price">Rp. ${product.price}</span>
+    `;
+
+    cartItems.appendChild(newItem);
+
+    // Update to quantity editor
+    e.parentElement.querySelector('.hidden').classList.remove('hidden');
+    e.classList.add('hidden');
+
+
+    // Update cart count
+    const cartCount = document.getElementById('cartCount');
+    cartCount.textContent = parseInt(cartCount.textContent) + 1;
+  }
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.matches('.plus-btn')) {
+    const id = e.target.getAttribute('data-id');
+    const item = document.querySelector(`[data-id-qty="${id}"]`);
+    let qty = parseInt(item.textContent) || 1;
+    qty += 1;
+
+    item.textContent = qty;
+
+    // update order
+    const cartItem = document.querySelector(`[data-cart-id="${id}"]`);
+    cartItem.setAttribute('data-qty', qty);
+    cartItem.querySelector('.item-qty').textContent = `×${qty}`;
+    cartItem.querySelector('.item-price').textContent = `Rp. ${parseInt(cartItem.getAttribute('data-price')) * qty}`;
+    // update cart count
+    const cartCount = document.getElementById('cartCount');
+    cartCount.textContent = parseInt(cartCount.textContent) + 1;
+  } else if (e.target.matches('.minus-btn')) {
+    const id = e.target.getAttribute('data-id');
+    const item = document.querySelector(`[data-id-qty="${id}"]`);
+    let qty = parseInt(item.textContent) || 1;
+
+    if (qty > 1) {
+      qty -= 1;
+      item.textContent = qty;
+
+      // update order
+      const cartItem = document.querySelector(`[data-cart-id="${id}"]`);
+      cartItem.setAttribute('data-qty', qty);
+      cartItem.querySelector('.item-qty').textContent = `×${qty}`;
+      cartItem.querySelector('.item-price').textContent = `Rp. ${parseInt(cartItem.getAttribute('data-price')) * qty}`;
+      
+      // update cart count
+      const cartCount = document.getElementById('cartCount');
+      cartCount.textContent = parseInt(cartCount.textContent) - 1;
+    } else {
+      // Remove item if quantity is 1
+      const cartItem = document.querySelector(`[data-cart-id="${id}"]`);
+      cartItem.remove();
+
+      item.parentElement.parentElement.querySelector('.hidden').classList.remove('hidden');
+      item.parentElement.classList.add('hidden');
+
+      // update cart count
+      const cartCount = document.getElementById('cartCount');
+      cartCount.textContent = parseInt(cartCount.textContent) - 1;
+    }
+  }
+});
+
+function UpdateSubTotalPrice() {
+  const cartItems = document.querySelectorAll('#cartItems > div');
+  let total = 0;
+
+  cartItems.forEach(item => {
+    const price = parseInt(item.querySelector('.item-price').textContent.replace('Rp. ', ''));
+    const qty = parseInt(item.getAttribute('data-qty')) || 1;
+    total += price;
+  });
+
+  const subtotalElement = document.getElementById('cartSubTotal');
+  subtotalElement.textContent = `Rp. ${total}`;
+}
+
+function UpdateTax() {
+  const subtotalElement = document.getElementById('cartSubTotal');
+  const subtotal = parseInt(subtotalElement.textContent.replace('Rp. ', ''));
+  const tax = Math.round(subtotal * 0.15); // 15% tax
+  const taxElement = document.getElementById('cartTax');
+  taxElement.textContent = `Rp. ${tax}`;
+}
+
+function UpdateCartTotal() {
+  UpdateSubTotalPrice();
+  UpdateTax();
+
+  const subtotalElement = document.getElementById('cartSubTotal');
+  const taxElement = document.getElementById('cartTax');
+  const cartTotalElement = document.getElementById('cartTotal');
+  const total = parseInt(subtotalElement.textContent.replace('Rp. ', '')) + parseInt(taxElement.textContent.replace('Rp. ', ''));
+  
+  cartTotalElement.textContent = `Rp. ${total}`;
+}
+
+function Checkout() {
+  const cartItems = document.querySelectorAll('#cartItems > div');
+  const orderDetails = Array.from(cartItems).map(item => {
+    return {
+      id: item.getAttribute('data-cart-id'),
+      name: item.querySelector('.item-name').textContent,
+      qty: item.getAttribute('data-qty'),
+      price: item.querySelector('.item-price').textContent
+    };
+  });
+
+
+  console.log(orderDetails);
+
+  if (orderDetails.length === 0) {
+    alert('Your cart is empty!');
+    return;
+  }
+
+  fetch('/checkout/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({ order_details: orderDetails })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'success') {
+      alert('Order placed successfully!');
+      CloseModal();
+
+      window.location.href = `/order/${data.order_id}/`;
+    } else {
+      alert('Failed to place order. Please try again.');
+    }
+  })
+  .catch(error => console.error('Error:', error));
+}
+
+</script>
+{% endblock %}
