@@ -1,5 +1,6 @@
 {% extends 'layouts/default.html' %}
 {% load static %} 
+{% load formatters %}
 
 {% block title %}Menu{%endblock %}
 {% block content %}
@@ -23,7 +24,7 @@
       </p>
       <div class="flex justify-between items-center">
         <span class="text-jet font-bold text-base font-body"
-          >Rp. {{ product.price }}</span
+          >{{ product.price|rupiah }}</span
         >
         <button
           onclick="AddToCart(this)"
@@ -109,7 +110,7 @@
   const product = {
     id: el.id,
     name: el.querySelector('h3').textContent,
-    price: parseInt(el.querySelector('span').textContent.replace('Rp. ', ''))
+    price: parseInt(parseRupiah(el.querySelector('.text-jet').textContent))
   };
 
   let existingItem = cartItems.querySelector(`[data-cart-id="${product.id}"]`);
@@ -124,7 +125,8 @@
     existingItem.querySelector('.item-name').textContent = `${product.name} ×${qty}`;
 
     // Update total price (price × quantity)
-    existingItem.querySelector('.item-price').textContent = `Rp. ${product.price * qty}`;
+    let totalPrice = product.price * qty;
+    existingItem.querySelector('.item-price').textContent = formatRupiah(totalPrice);
   } else {
     // New item with quantity = 1
     const newItem = document.createElement('div');
@@ -138,7 +140,7 @@
         <span class="item-name font-semibold">${product.name}</span>
         <span class="item-qty text-sm text-gray-500">×1</span>
       </div>
-      <span class="item-price">Rp. ${product.price}</span>
+      <span class="item-price">${formatRupiah(product.price)}</span>
     `;
 
     cartItems.appendChild(newItem);
@@ -167,7 +169,7 @@ document.addEventListener('click', (e) => {
     const cartItem = document.querySelector(`[data-cart-id="${id}"]`);
     cartItem.setAttribute('data-qty', qty);
     cartItem.querySelector('.item-qty').textContent = `×${qty}`;
-    cartItem.querySelector('.item-price').textContent = `Rp. ${parseInt(cartItem.getAttribute('data-price')) * qty}`;
+    cartItem.querySelector('.item-price').textContent = formatRupiah(parseInt(cartItem.getAttribute('data-price')) * qty);
     // update cart count
     const cartCount = document.getElementById('cartCount');
     cartCount.textContent = parseInt(cartCount.textContent) + 1;
@@ -209,21 +211,21 @@ function UpdateSubTotalPrice() {
   let total = 0;
 
   cartItems.forEach(item => {
-    const price = parseInt(item.querySelector('.item-price').textContent.replace('Rp. ', ''));
+    const price = parseInt(parseRupiah(item.querySelector('.item-price').textContent));
     const qty = parseInt(item.getAttribute('data-qty')) || 1;
     total += price;
   });
 
   const subtotalElement = document.getElementById('cartSubTotal');
-  subtotalElement.textContent = `Rp. ${total}`;
+  subtotalElement.textContent = formatRupiah(total);
 }
 
 function UpdateTax() {
   const subtotalElement = document.getElementById('cartSubTotal');
-  const subtotal = parseInt(subtotalElement.textContent.replace('Rp. ', ''));
+  const subtotal = parseInt(parseRupiah(subtotalElement.textContent));
   const tax = Math.round(subtotal * 0.15); // 15% tax
   const taxElement = document.getElementById('cartTax');
-  taxElement.textContent = `Rp. ${tax}`;
+  taxElement.textContent = formatRupiah(tax);
 }
 
 function UpdateCartTotal() {
@@ -233,9 +235,9 @@ function UpdateCartTotal() {
   const subtotalElement = document.getElementById('cartSubTotal');
   const taxElement = document.getElementById('cartTax');
   const cartTotalElement = document.getElementById('cartTotal');
-  const total = parseInt(subtotalElement.textContent.replace('Rp. ', '')) + parseInt(taxElement.textContent.replace('Rp. ', ''));
+  const total = parseInt(parseRupiah(subtotalElement.textContent)) + parseInt(parseRupiah(taxElement.textContent));
   
-  cartTotalElement.textContent = `Rp. ${total}`;
+  cartTotalElement.textContent = formatRupiah(total);
 }
 
 function Checkout() {
@@ -245,12 +247,9 @@ function Checkout() {
       id: item.getAttribute('data-cart-id'),
       name: item.querySelector('.item-name').textContent,
       qty: item.getAttribute('data-qty'),
-      price: item.querySelector('.item-price').textContent
+      price: parseRupiah(item.querySelector('.item-price').textContent)
     };
   });
-
-
-  console.log(orderDetails);
 
   if (orderDetails.length === 0) {
     alert('Your cart is empty!');
@@ -268,10 +267,8 @@ function Checkout() {
   .then(response => response.json())
   .then(data => {
     if (data.status === 'success') {
-      alert('Order placed successfully!');
       CloseModal();
-
-      window.location.href = `/order/${data.order_id}/`;
+      window.location.href = data.redirect_url;
     } else {
       alert('Failed to place order. Please try again.');
     }
