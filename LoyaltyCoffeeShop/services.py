@@ -6,6 +6,8 @@ from functools import reduce
 import os
 from dotenv import load_dotenv
 
+load_dotenv()
+
 snap = midtransclient.Snap(
     is_production= os.getenv('MIDTRANS_IS_PRODUCTION') == 'True',
     server_key= os.getenv('MIDTRANS_SEVER_KEY'),
