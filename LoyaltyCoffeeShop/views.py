@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 import json
 from . import models
 import re
+from .services import create_transaction
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -62,7 +63,8 @@ def login(request):
     return render(request, 'auth/login.html')
 
 def logout(request):
-    return render(request, 'logout.html')
+    request.session.flush()
+    return HttpResponseRedirect('/auth/login')
 
 def menu(request):
     products = models.Product.objects.all()
@@ -72,12 +74,15 @@ def menu(request):
 def checkout(request):
     if request.method == 'POST':
         order_details = json.loads(request.body.decode('utf-8')).get('order_details', [])
-        products = models.Product.objects.all()
+        user = request.session.get('user', None)
+
+        if not user:
+            return JsonResponse({"message": "User not logged in.", "status": "error"}, status=401)
 
         if not order_details:
             return JsonResponse({"message": "No items in the order.", "status": "error"}, status=400)
 
-        transaction = models.Transaction.objects.create(customer_id=1)
+        transaction = models.Transaction.objects.create(customer_id=user['id'], status='pending')
 
         models.TransactionItem.objects.bulk_create([
             models.TransactionItem(
@@ -87,7 +92,37 @@ def checkout(request):
             ) for item in order_details
         ])
 
-    return JsonResponse({"message": "Order placed successfully!", "status": "success", "order_id": transaction.id}, status=200)
+        transaction_items = models.TransactionItem.objects.filter(transaction=transaction)
+        subtotal = sum(item.product.price * item.quantity for item in transaction_items)
+        tax = int(subtotal * 0.15)
+        total_amount = subtotal + tax
+
+        transaction.subtotal = subtotal
+        transaction.tax = tax
+        transaction.total_amount = total_amount
+        transaction.save()
+
+        result = create_transaction({
+            "order_id": transaction.id,
+            "gross_amount": total_amount,
+            "customer_name": user['name'],
+            "customer_email": user['email'],
+            "items": [
+                {
+                    "id": item.product.id,
+                    "price": item.product.price,
+                    "quantity": item.quantity,
+                    "name": item.product.name
+                } for item in transaction_items
+            ]
+        })
+
+        if 'error' in result:
+            transaction.status = 'failed'
+            transaction.save()
+            return JsonResponse({"message": result['error'], "status": "error"}, status=400)
+
+    return JsonResponse({"message": "Order placed successfully!", "status": "success", "order_id": transaction.id, "redirect_url": result}, status=200)
 
 def about(request):
     return render(request, 'about.html')
