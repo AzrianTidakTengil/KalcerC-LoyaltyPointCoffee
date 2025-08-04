@@ -62,7 +62,8 @@ def login(request):
     return render(request, 'auth/login.html')
 
 def logout(request):
-    return render(request, 'logout.html')
+    request.session.flush()
+    return HttpResponseRedirect('/auth/login')
 
 def menu(request):
     products = models.Product.objects.all()
