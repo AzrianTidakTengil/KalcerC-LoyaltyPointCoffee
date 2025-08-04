@@ -89,6 +89,19 @@
       document.getElementById('pastry').scrollIntoView({ behavior: 'smooth',  block: "center" });
       document.getElementById('snacks').scrollIntoView({ behavior: 'smooth',  block: "center" });
 
+      function formatRupiah(angka) {
+        return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      }
+
+      function parseRupiah(rupiahString) {
+        let cleaned = rupiahString.replace(/[^0-9,]/g, '');
+        
+        cleaned = cleaned.replace(',', '.');
+        
+        let number = parseFloat(cleaned);
+        
+        return number;
+      }
     </script>
     {% block style %}{% endblock %}
     {% block script %}{% endblock %}
