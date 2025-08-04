@@ -13,6 +13,10 @@ class Transaction(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, default='pending')
+    subtotal = models.IntegerField(default=0)
+    discount = models.IntegerField(default=0)
+    tax = models.IntegerField(default=0)
+    total_amount = models.IntegerField(default=0)
 
 class TransactionItem(models.Model):
     transaction = models.ForeignKey(Transaction, related_name="items" ,on_delete=models.CASCADE)
