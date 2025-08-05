@@ -201,3 +201,31 @@ def reset_password(request):
         except models.Customer.DoesNotExist:
             return HttpResponse("Email not found.")
     return render(request, 'auth/reset_password.html')
+
+def final_payment(request):
+    params = request.GET.dict()
+    order_id = params.get('order_id')
+    status_code = params.get('status_code')
+    transaction_status = params.get('transaction_status')
+
+    transaction = models.Transaction.objects.filter(id=order_id).first()
+    if not transaction:
+        return HttpResponse("Transaction not found.")
+    
+    if transaction_status == 'settlement':
+        transaction.status = 'in_progress'
+        transaction.save()
+        return HttpResponseRedirect(f"/order/{order_id}")
+    elif transaction_status == 'pending':
+        transaction.status = 'pending'
+        transaction.save()
+        return HttpResponseRedirect(f"/order/{order_id}")
+    elif transaction_status == 'cancel':
+        transaction.status = 'cancelled'
+        transaction.save()
+        return HttpResponseRedirect(f"/order/{order_id}")
+
+    return HttpResponseRedirect(f"/order/{order_id}")
+
+def error_payment(request):
+    return HttpResponseRedirect(f"/")
