@@ -4,13 +4,37 @@
 {% block title %}Order Detail{% endblock %}
 {% block content %}
 <div class="flex justify-center items-start min-h-screen p-6">
-  <div class="max-w-md w-full bg-seasalt/90 p-8 rounded-2xl shadow-xl border border-ebony-700 backdrop-blur-md">
+  <div class="max-w-md w-full bg-seasalt/90 p-8 rounded-2xl shadow-xl border border-ebony-700 backdrop-blur-md max-h-[80dvh] overflow-y-auto">
     <h2 class="text-3xl font-extrabold mb-6 text-center text-copperplate tracking-wide">📜 Order Detail</h2>
     <!-- Order Information -->
     {% if order.status == 'completed' %}
       <div class="mb-5 bg-green-100 p-4 rounded-xl shadow-inner border border-green-200">
         <p class="text-sm font-semibold text-green-800 mb-2">
           Status: <span class="font-normal text-green-700">Completed</span>
+        </p>
+      </div>
+    {% elif order.status == 'cancelled' %}
+      <div class="mb-5 bg-red-100 p-4 rounded-xl shadow-inner border border-red-200">
+        <p class="text-sm font-semibold text-red-800 mb-2">
+          Status: <span class="font-normal text-red-700">Cancelled</span>
+        </p>
+      </div>
+    {% elif order.status == 'in_progress' %}
+      <div class="mb-5 bg-blue-100 p-4 rounded-xl shadow-inner border border-blue-200">
+        <p class="text-sm font-semibold text-blue-800 mb-2">
+          Status: <span class="font-normal text-blue-700">In Progress</span>
+        </p>
+      </div>
+    {% elif order.status == 'ready' %}
+      <div class="mb-5 bg-purple-100 p-4 rounded-xl shadow-inner border border-purple-200">
+        <p class="text-sm font-semibold text-purple-800 mb-2">
+          Status: <span class="font-normal text-purple-700">Ready</span>
+        </p>
+      </div>
+    {% elif order.status == 'on_hold' %}
+      <div class="mb-5 bg-orange-100 p-4 rounded-xl shadow-inner border border-orange-200">
+        <p class="text-sm font-semibold text-orange-800 mb-2">
+          Status: <span class="font-normal text-orange-700">On Hold</span>
         </p>
       </div>
     {% else %}
@@ -20,6 +44,7 @@
         </p>
       </div>
     {% endif %}
+    <h3 class="text-lg font-semibold my-3"> Detail:</h3>
     <div class="bg-silver-800/40 p-4 rounded-xl shadow-inner border border-jet-100/10 space-y-2">
       <p class="text-sm font-semibold text-jet">
         Order ID: <span class="font-normal text-umber">{{ order.id }}</span>
@@ -42,7 +67,10 @@
         </p>
       </div>
     </div>
-    <h3 class="text-lg font-semibold mb-3"> Items:</h3>
+    <p class="mt-2 text-sm text-jet text-center">
+      Saat pesanan sudah siap, anda akan menerima notifikasi melalui aplikasi atau layar pesanan. 
+    </p>
+    <h3 class="text-lg font-semibold my-3"> Items:</h3>
     <ul class="space-y-2">
       {% for item in order.items.all %}
         <li class="flex flex-col sm:flex-row sm:justify-between bg-ivory/60 p-3 rounded-xl shadow hover:bg-ivory transition border border-jet-100/10">
