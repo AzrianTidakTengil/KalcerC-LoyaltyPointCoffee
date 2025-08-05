@@ -16,6 +16,8 @@ customer = [
     path('order/<int:order_id>/', views.order_detail, name='order_detail'),
     path('order/history/', views.order_history, name='order_history'),
     path('checkout/', views.checkout, name='checkout'),
+    path('final-payment/', views.final_payment, name='final_payment'),
+    path('error-payment/', views.error_payment, name="error_payment"),
 ]
 
 worker = [
