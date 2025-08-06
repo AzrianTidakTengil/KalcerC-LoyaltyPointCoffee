@@ -6,6 +6,7 @@ auth = [
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('password-reset/', views.reset_password, name='password_reset'),
+    path('login-master/', views.login_master, name='login_master'),
 ]
 
 customer = [
@@ -21,6 +22,7 @@ customer = [
 ]
 
 worker = [
+    path('dashboard/', views.dashboard, name='dashboard'),
     path('order/', views.order, name='order'),
     path('order/cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
     path('order/add/', views.add_order, name='add_order'),
