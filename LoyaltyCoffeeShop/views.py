@@ -4,6 +4,9 @@ import json
 from . import models
 import re
 from .services import create_transaction
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -229,3 +232,26 @@ def final_payment(request):
 
 def error_payment(request):
     return HttpResponseRedirect(f"/")
+def login_master(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        credentials = {
+            'email': os.getenv('MASTER_EMAIL'),
+            'password': os.getenv('MASTER_PASSWORD')
+        }
+
+        if email == credentials['email'] and password == credentials['password']:
+            request.session['master'] = {
+                'email': email
+            }
+            return HttpResponseRedirect('/admin/dashboard')
+        else:
+            return HttpResponse("Invalid email or password.")
+        
+def dashboard(request):
+    if 'master' not in request.session:
+        return HttpResponseRedirect('/auth/login-master')
+
+    return render(request, 'admin/dashboard.html', {'email': request.session['master']['email']})
