@@ -6,6 +6,7 @@ auth = [
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('password-reset/', views.reset_password, name='password_reset'),
+    path('login-master/', views.login_master, name='login_master'),
 ]
 
 customer = [
@@ -16,9 +17,12 @@ customer = [
     path('order/<int:order_id>/', views.order_detail, name='order_detail'),
     path('order/history/', views.order_history, name='order_history'),
     path('checkout/', views.checkout, name='checkout'),
+    path('final-payment/', views.final_payment, name='final_payment'),
+    path('error-payment/', views.error_payment, name="error_payment"),
 ]
 
 worker = [
+    path('dashboard/', views.dashboard, name='dashboard'),
     path('order/', views.order, name='order'),
     path('order/cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
     path('order/add/', views.add_order, name='add_order'),
