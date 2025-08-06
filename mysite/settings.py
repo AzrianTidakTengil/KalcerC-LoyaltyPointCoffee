@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'LoyaltyCoffeeShop.middlewares.PrivateUrls',
+    'LoyaltyCoffeeShop.middlewares.MasterUrls',
 ]
 
 ROOT_URLCONF = 'mysite.urls'
