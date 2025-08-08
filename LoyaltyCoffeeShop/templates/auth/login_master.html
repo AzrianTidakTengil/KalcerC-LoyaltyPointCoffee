@@ -1,0 +1,45 @@
+{%extends 'layouts/blank.html' %}
+{% load static %} 
+
+{% block title %}Login Master{%endblock %}
+{% block content %}
+    <div class="flex justify-center items-center h-full">
+        <div class="max-w-md w-full bg-seasalt p-8 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-6 text-center text-jet">Login</h2>
+            <form method="post" action="{% url 'login_master' %}">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-jet">Email</label>
+                    <input type="text" name="email" id="email" required
+                           class="mt-1 block w-full px-3 py-2 border border-jet-400 rounded-md shadow-sm focus:outline-none focus:ring-ebony-500 focus:border-ebony-500 sm:text-sm">
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-jet">Password</label>
+                    <div class="relative">
+                        <input type="password" name="password" id="password" required
+                               class="mt-1 block w-full px-3 py-2 border border-jet-400 rounded-md shadow-sm focus:outline-none focus:ring-ebony-500 focus:border-ebony-500 sm:text-sm">
+                        <button type="button" onclick="ShowPassword()"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-jet-500 hover:text-jet-300">
+                            <img src="{% static 'svg/eye.svg' %}" alt="Toggle Password Visibility" class="w-5 h-5">
+                        </button>
+                    </div>
+                </div>
+                <button type="submit"
+                        class="w-full bg-ebony text-seasalt px-4 py-2 rounded-md hover:bg-ebony-400 transition duration-200">
+                    Login
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+{% block script %}
+<script>
+    function ShowPassword() {
+        const passwordInput = document.getElementById('password');
+        const icon = passwordInput.nextElementSibling.querySelector('img');
+
+        passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+        icon.src = passwordInput.type === 'password' ? '{% static "svg/eye.svg" %}' : '{% static "svg/eye-closed.svg" %}';
+    }
+</script>
+{% endblock script %}
