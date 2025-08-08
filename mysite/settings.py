@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'LoyaltyCoffeeShop.middlewares.PrivateUrls',
     'LoyaltyCoffeeShop.middlewares.MasterUrls',
+    'LoyaltyCoffeeShop.middlewares.HomeRedirect',
 ]
 
 ROOT_URLCONF = 'mysite.urls'
