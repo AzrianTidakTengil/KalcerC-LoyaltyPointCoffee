@@ -6,6 +6,9 @@ import re
 from .services import create_transaction
 import os
 from dotenv import load_dotenv
+from django.utils.timezone import now
+from django.db.models import Sum
+
 load_dotenv()
 
 def index(request):
@@ -55,6 +58,7 @@ def login(request):
         
         try:
             customer = models.Customer.objects.get(email=email, password=password)
+            request.session.flush()
             request.session['user'] = {
                 'id': customer.id,
                 'name': customer.name,
@@ -237,21 +241,38 @@ def login_master(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
 
+        print(f"Email: {email}, Password: {password}")
+
         credentials = {
             'email': os.getenv('MASTER_EMAIL'),
             'password': os.getenv('MASTER_PASSWORD')
         }
 
         if email == credentials['email'] and password == credentials['password']:
+            request.session.flush()
             request.session['master'] = {
                 'email': email
             }
-            return HttpResponseRedirect('/admin/dashboard')
+            return HttpResponseRedirect('/worker/dashboard')
         else:
             return HttpResponse("Invalid email or password.")
+    return render(request, 'auth/login_master.html')
         
 def dashboard(request):
     if 'master' not in request.session:
         return HttpResponseRedirect('/auth/login-master')
+    
+    today = now().date()
+    statuses = ['settlement', 'in_progress', 'completed']
+    
+    income = (
+        models.Transaction.objects
+        .filter(status__in = statuses, date__date=today)
+        .aggregate(total=Sum('total_amount'))['total'] or 0
+    )
+    orders = models.Transaction.objects.filter(status='in_progress', date__date=today).count()
+    customers = models.Customer.objects.count()
 
-    return render(request, 'admin/dashboard.html', {'email': request.session['master']['email']})
+    orders_history = models.Transaction.objects.filter(status='completed').order_by('-date')
+
+    return render(request, 'worker/dashboard.html', {'email': request.session['master']['email'], 'income': income, 'orders': orders, 'customers': customers, 'history': orders_history})
