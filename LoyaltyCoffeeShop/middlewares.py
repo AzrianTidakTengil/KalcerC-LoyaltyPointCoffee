@@ -43,3 +43,13 @@ class MasterUrls:
             return HttpResponseRedirect('/auth/login-master/')
         response = self.get_response(request)
         return response
+    
+class HomeRedirect:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.path == '/' and request.session.get('master'):
+            return HttpResponseRedirect('/worker/dashboard/')
+        response = self.get_response(request)
+        return response
