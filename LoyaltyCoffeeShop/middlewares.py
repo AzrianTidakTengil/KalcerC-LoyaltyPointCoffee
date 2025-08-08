@@ -14,9 +14,11 @@ class PrivateUrls:
             '/auth/password-reset/',
             '/about/',
             '/contact/',
-            '/'
+            '/',
+            '/auth/login-master/',
+            '/auth/logout/',
         ]
-        if request.path not in published_urls and not request.session.get('user'):
+        if request.path not in published_urls and not request.session.get('user') and not request.session.get('master'):
             return HttpResponseRedirect('/auth/login/')
         response = self.get_response(request)
         return response
