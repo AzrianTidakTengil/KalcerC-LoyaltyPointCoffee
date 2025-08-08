@@ -1,0 +1,80 @@
+{% extends 'layouts/worker.html' %}
+{% load static %} 
+{% load formatters %}
+
+{% block title %}DashBoard{%endblock %}
+{% block content %}
+<main class="p-6 max-w-7xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-4xl font-semibold text-jet">👋 Welcome, {{ email }}!</h1>
+      <div class="rounded-full bg-silver-300 p-4 hover:bg-silver-200 transition flex items-center space-x-2 text-sm text-seasalt-600">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        <a href="{% url 'add_order' %}">Tambah Pesanan</a>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white rounded-xl shadow p-4">
+        <h2 class="text-sm text-gray-500">Total Income (Today)</h2>
+        <p class="text-2xl font-bold">{{ income|rupiah }}</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4">
+        <h2 class="text-sm text-gray-500">Total Orders (Today)</h2>
+        <p class="text-2xl font-bold">{{ orders }}</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4">
+        <h2 class="text-sm text-gray-500">Customers</h2>
+        <p class="text-2xl font-bold">{{ customers }}</p>
+      </div>
+    </section>
+
+    <!-- Favorite Items Chart Placeholder -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-lg font-semibold mb-4">📊 Favorite Menu Items</h2>
+      <div class="w-full h-64 bg-gray-100 flex items-center justify-center rounded-md text-gray-400">
+        Chart Placeholder
+      </div>
+    </section>
+
+    <!-- Recent Orders Table -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-lg font-semibold mb-4">🧾 Recent Orders</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-50 text-left font-semibold text-gray-600">
+            <tr>
+              <th class="p-2">Order ID</th>
+              <th class="p-2">Customer</th>
+              <th class="p-2">Items</th>
+              <th class="p-2">Total</th>
+              <th class="p-2">Date</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            {% for order in history %}
+            <tr>
+              <td class="p-2">{{ order.id }}</td>
+              <td class="p-2">{{ order.customer.name }}</td>
+              <td class="p-2">
+                {% for item in order.items.all %}
+                {{ item.product.name }} (x{{ item.quantity }}) {% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </td>
+              <td class="p-2">{{ order.total_amount|rupiah }}</td>
+              <td class="p-2">{{ order.date|date:"Y-m-d H:i:s" }}</td>
+            </tr>
+            {% empty %}
+            {% endfor %}
+            <tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+{% endblock %} {% block script %}
+<script>
+    
+</script>
+{% endblock %}
