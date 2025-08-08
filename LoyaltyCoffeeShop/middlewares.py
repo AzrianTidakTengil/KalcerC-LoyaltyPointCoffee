@@ -14,9 +14,11 @@ class PrivateUrls:
             '/auth/password-reset/',
             '/about/',
             '/contact/',
-            '/'
+            '/',
+            '/auth/login-master/',
+            '/auth/logout/',
         ]
-        if request.path not in published_urls and not request.session.get('user'):
+        if request.path not in published_urls and not request.session.get('user') and not request.session.get('master'):
             return HttpResponseRedirect('/auth/login/')
         response = self.get_response(request)
         return response
@@ -39,5 +41,15 @@ class MasterUrls:
         ]
         if request.path in master_urls and request.session.get('user') and not request.session.get('master') and request.session.get('master') != os.getenv('MASTER_EMAIL'):
             return HttpResponseRedirect('/auth/login-master/')
+        response = self.get_response(request)
+        return response
+    
+class HomeRedirect:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.path == '/' and request.session.get('master'):
+            return HttpResponseRedirect('/worker/dashboard/')
         response = self.get_response(request)
         return response
