@@ -76,7 +76,19 @@
         }
     </style>
     <script>
-      
+      function formatRupiah(angka) {
+        return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      }
+
+      function parseRupiah(rupiahString) {
+        let cleaned = rupiahString.replace(/[^0-9,]/g, '');
+        
+        cleaned = cleaned.replace(',', '.');
+        
+        let number = parseFloat(cleaned);
+        
+        return number;
+      }
     </script>
     {% block style %}{% endblock %}
     {% block script %}{% endblock %}
@@ -101,24 +113,22 @@
             Market
         </h4>
         <div class="flex flex-col gap-2 mt-4 space-y-4 pl-4">
-            <div class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
+            <a href="{% url 'dashboard' %}" class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard-icon lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                <a>
-                    <h5>Dashboard</h5>
-                </a>
-            </div>
-            <div class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
+                <h5>Dashboard</h5>
+            </a>
+            <a href="{% url 'order' %}" class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-bag-icon lucide-shopping-bag"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg>
-                <a>
-                    <h5>Orders</h5>
-                </a>
-            </div>
-            <div class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
+                <h5>Orders</h5>
+            </a>
+            <a href="{% url 'discounts' %}" class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ticket-icon lucide-ticket"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
-                <a>
-                    <h5>Discount</h5>
-                </a>
-            </div>
+                <h5>Discount</h5>
+            </a>
+            <a href="{% url 'reports' %}" class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-receipt-text-icon lucide-receipt-text"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M14 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/></svg>
+                <h5>Report</h5>
+            </a>
         </div>
       </div>
       <div class="my-4">
@@ -126,18 +136,14 @@
             System
         </h4>
         <div class="flex flex-col gap-2 mt-4 space-y-4 pl-2">
-            <div class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
+            <a href="{% url 'settings' %}" class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>
-                <a>
-                    <h5>Setting</h5>
-                </a>
-            </div>
-            <div class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
+                <h5>Setting</h5>
+            </a>
+            <a href="{% url 'customers' %}" class="flex gap-2 items-center text-silver-900 font-medium cursor-pointer hover:text-silver transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users-icon lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
-                <a>
-                    <h5>Cutomers</h5>
-                </a>
-            </div>
+                <h5>Cutomers</h5>
+            </a>
         </div>
       </div>
       
