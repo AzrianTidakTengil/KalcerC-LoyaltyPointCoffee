@@ -172,15 +172,95 @@ def order_history(request):
     return render(request, 'order_history.html')
 
 def order(request):
-    return render(request, 'order.html')
+    today = now().date()
+    statuses = ['pending', 'in_progress']
+    orders = models.Transaction.objects.filter(status__in=statuses).order_by('-date')
+    return render(request, 'worker/order.html', {'orders': orders})
+
+def order_summary(request, order_id):
+    try:
+        order = models.Transaction.objects.get(id=order_id)
+        items = models.TransactionItem.objects.filter(transaction=order)
+        order_items = []
+        for item in items:
+            product = item.product
+            order_items.append({
+                'product_name': product.name,
+                'quantity': item.quantity,
+                'price': product.price,
+                'total': product.price * item.quantity
+            })
+
+        order.subtotal = sum(item['total'] for item in order_items)
+        order.tax = int(order.subtotal * 0.15)
+        order.total_amount = int(order.subtotal + order.tax)
+    except models.Transaction.DoesNotExist:
+        return HttpResponse("Order not found.")
+
+    return JsonResponse({
+        'order_id': order.id,
+        'customer_name': order.alias or order.customer.name,
+        'status': order.status,
+        'date': order.date.strftime('%Y-%m-%d %H:%M:%S'),
+        'items': order_items,
+        'subtotal': order.subtotal,
+        'tax': order.tax,
+        'total_amount': order.total_amount
+    })
 
 def cancel_order(request, order_id):
     return render(request, 'cancel_order.html', {'order_id': order_id})
 
 def add_order(request):
-    return render(request, 'add_order.html')
+    if request.method == 'POST':
+        customer = json.loads(request.body.decode('utf-8')).get('customer', '')
+        payment_method = json.loads(request.body.decode('utf-8')).get('payment_method', '')
+        order_details = json.loads(request.body.decode('utf-8')).get('order_details', [])
+        cash = json.loads(request.body.decode('utf-8')).get('cash', 0)
+
+        if not order_details:
+                return JsonResponse({"message": "No items in the order.", "status": "error"}, status=400)
+        
+        transaction = models.Transaction.objects.create(alias=customer, status='pending', payment_method=payment_method)
+
+        models.TransactionItem.objects.bulk_create([
+            models.TransactionItem(
+                transaction=transaction,
+                product_id=int(item['id']),
+                quantity=int(item['qty'])
+            ) for item in order_details
+        ])
+
+        transaction_items = models.TransactionItem.objects.filter(transaction=transaction)
+        subtotal = sum(item.product.price * item.quantity for item in transaction_items)
+        tax = int(subtotal * 0.15)
+        total_amount = subtotal + tax
+
+        transaction.subtotal = subtotal
+        transaction.tax = tax
+        transaction.total_amount = total_amount
+        transaction.save()
+    
+        return HttpResponseRedirect('/worker/order/')
+
+    products = models.Product.objects.all()
+
+    return render(request, 'worker/add_order.html', {'products': products})
 
 def update_order(request, order_id):
+    serve = request.GET.get('serve', 'false').lower() == 'true'
+    if serve and request.method == 'POST':
+        try:
+            order = models.Transaction.objects.get(id=order_id)
+            statuses = ['pending', 'in_progress', 'completed']
+            if order.status not in statuses:
+                return JsonResponse({"message": "Order is not in progress.", "status": "error"}, status=400)
+            order.status = 'ready'
+            order.save()
+            return JsonResponse({"message": "Order updated successfully!", "status": "success"}, status=200)
+        except models.Transaction.DoesNotExist:
+            return HttpResponse("Order not found.")
+
     return render(request, 'update_order.html', {'order_id': order_id})
 
 def loyalty_program(request):
@@ -276,3 +356,102 @@ def dashboard(request):
     orders_history = models.Transaction.objects.filter(status='completed').order_by('-date')
 
     return render(request, 'worker/dashboard.html', {'email': request.session['master']['email'], 'income': income, 'orders': orders, 'customers': customers, 'history': orders_history})
+
+def settings(request):
+    
+    return render(request, 'worker/settings.html', {'email': request.session['master']['email']})
+
+def update_settings(request):
+
+    return HttpResponse("Settings updated successfully.")
+
+def discounts(request):
+    # discounts = models.Discount.objects.all()
+    return render(request, 'worker/discounts.html', {'discounts': discounts})
+
+def add_discount(request):
+    # if request.method == 'POST':
+    #     name = request.POST.get('name')
+    #     percentage = request.POST.get('percentage')
+        
+    #     if not name or not percentage:
+    #         return HttpResponse("Please fill all fields.")
+        
+    #     try:
+    #         percentage = float(percentage)
+    #         if percentage < 0 or percentage > 100:
+    #             return HttpResponse("Percentage must be between 0 and 100.")
+    #     except ValueError:
+    #         return HttpResponse("Invalid percentage value.")
+
+    #     discount = models.Discount(name=name, percentage=percentage)
+    #     discount.save()
+    #     return HttpResponseRedirect('/worker/discounts')
+
+    return render(request, 'worker/add_discount.html')
+
+def update_discount(request, discount_id):
+    # try:
+    #     discount = models.Discount.objects.get(id=discount_id)
+    # except models.Discount.DoesNotExist:
+    #     return HttpResponse("Discount not found.")
+
+    # if request.method == 'POST':
+    #     name = request.POST.get('name')
+    #     percentage = request.POST.get('percentage')
+
+    #     if not name or not percentage:
+    #         return HttpResponse("Please fill all fields.")
+
+    #     try:
+    #         percentage = float(percentage)
+    #         if percentage < 0 or percentage > 100:
+    #             return HttpResponse("Percentage must be between 0 and 100.")
+    #     except ValueError:
+    #         return HttpResponse("Invalid percentage value.")
+
+    #     discount.name = name
+    #     discount.percentage = percentage
+    #     discount.save()
+        
+    #     return HttpResponseRedirect('/worker/discounts')
+
+    return render(request, 'worker/update_discount.html', {'discount_id': discount_id})
+
+def delete_discount(request, discount_id):
+    # try:
+    #     discount = models.Discount.objects.get(id=discount_id)
+    #     discount.delete()
+    #     return HttpResponseRedirect('/worker/discounts')
+    # except models.Discount.DoesNotExist:
+    #     return HttpResponse("Discount not found.")
+
+    return render(request, 'worker/delete_discount.html', {'discount_id': discount_id})
+
+def reports(request):
+    today = now().date()
+    statuses = ['settlement', 'in_progress', 'completed']
+    
+    income = (
+        models.Transaction.objects
+        .filter(status__in=statuses, date__date=today)
+        .aggregate(total=Sum('total_amount'))['total'] or 0
+    )
+    orders = models.Transaction.objects.filter(status='in_progress', date__date=today).count()
+    customers = models.Customer.objects.count()
+
+    orders_history = models.Transaction.objects.filter(status='completed').order_by('-date')
+
+    return render(request, 'worker/reports.html', {'email': request.session['master']['email'], 'income': income, 'orders': orders, 'customers': customers, 'history': orders_history})
+
+def customers(request):
+    customers_list = models.Customer.objects.all()
+    return render(request, 'worker/customers.html', {'customers': customers_list})
+
+def customer_detail(request, customer_id):
+    try:
+        customer = models.Customer.objects.get(id=customer_id)
+        orders = models.Transaction.objects.filter(customer=customer).order_by('-date')
+        return render(request, 'worker/customer_detail.html', {'customer': customer, 'orders': orders})
+    except models.Customer.DoesNotExist:
+        return HttpResponse("Customer not found.")
