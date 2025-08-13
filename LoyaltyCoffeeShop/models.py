@@ -10,13 +10,17 @@ class Product(models.Model):
     price = models.IntegerField()
 
 class Transaction(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True)
+    alias = models.CharField(max_length=100, null=True)
     date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, default='pending')
     subtotal = models.IntegerField(default=0)
     discount = models.IntegerField(default=0)
     tax = models.IntegerField(default=0)
     total_amount = models.IntegerField(default=0)
+    payment_method = models.CharField(max_length=20, default='midtrans')
+    cash = models.IntegerField(null=True, default=0)
+    change = models.IntegerField(null=True, default=0)
 
 class TransactionItem(models.Model):
     transaction = models.ForeignKey(Transaction, related_name="items" ,on_delete=models.CASCADE)
