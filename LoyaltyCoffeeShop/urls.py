@@ -27,10 +27,20 @@ worker = [
     path('order/cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
     path('order/add/', views.add_order, name='add_order'),
     path('order/update/<int:order_id>/', views.update_order, name='update_order'),
+    path('order/summary/<int:order_id>/', views.order_summary, name='order_summary'),
     path('loyalty/', views.loyalty_program, name='loyalty_program'),
     path('menu/add/', views.add_menu_item, name='add_menu_item'),
     path('menu/update/<int:item_id>/', views.update_menu_item, name='update_menu_item'),
     path('menu/delete/<int:item_id>/', views.delete_menu_item, name='delete_menu_item'),
+    path('settings/', views.settings, name='settings'),
+    path('settings/update/', views.update_settings, name='update_settings'),
+    path('discounts/', views.discounts, name='discounts'),
+    path('discounts/add/', views.add_discount, name='add_discount'),
+    path('discounts/update/<int:discount_id>/', views.update_discount, name='update_discount'),
+    path('discounts/delete/<int:discount_id>/', views.delete_discount, name='delete_discount'),
+    path('reports/', views.reports, name='reports'),
+    path('customers/', views.customers, name='customers'),
+    path('customers/<int:customer_id>/', views.customer_detail, name='customer_detail'),
 ]
 
 urlpatterns = [
