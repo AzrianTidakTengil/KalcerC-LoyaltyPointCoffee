@@ -1,0 +1,224 @@
+{% extends 'layouts/worker.html' %}
+{% load static %} 
+{% load formatters %}
+
+{% block title %}Orders{%endblock %}
+{% block content %}
+<main class="p-6 max-w-7xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-4xl font-semibold text-jet">Orders</h1>
+      <div class="rounded-full bg-silver-300 p-4 hover:bg-silver-200 transition flex items-center space-x-2 text-sm text-seasalt-600">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        <a href="{% url 'add_order' %}">Tambah Pesanan</a>
+      </div>
+    </div>
+
+    <!-- Table Layout -->
+    <div class="p-4">
+    <div class="overflow-x-auto bg-white shadow-md rounded-xl">
+        <table class="min-w-full table-auto text-sm text-left text-jet-400">
+        <thead class="bg-ebony-800 text-xs uppercase">
+            <tr>
+            <th class="px-6 py-3">Order ID</th>
+            <th class="px-6 py-3">Customer</th>
+            <th class="px-6 py-3">Date</th>
+            <th class="px-6 py-3">Status</th>
+            <th class="px-6 py-3">Total</th>
+            <th class="px-6 py-3">Action</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for order in orders %}
+            <tr>
+                <td class="px-6 py-4 font-medium text-gray-900">{{ order.id }}</td>
+                <td class="px-6 py-4">{% if order.alias %} {{order.alias}} {% else %} {{ order.customer.name }} {% endif %}</td>
+                <td class="px-6 py-4">{{ order.date|date:"Y-m-d" }}</td>
+                <td class="px-6 py-4">
+                    <span class="px-2 py-1 text-xs font-semibold 
+                          {% if order.status == 'pending' %}text-yellow-700 bg-yellow-100
+                          {% elif order.status == 'in_progress' %}text-blue-700 bg-blue-100
+                          {% elif order.status == 'completed' %}text-green-700 bg-green-100
+                          {% else %}text-red-700 bg-red-100
+                          {% endif %} rounded-full">
+                        {{ order.status|capfirst }}
+                    </span>
+                </td>
+                <td class="px-6 py-4">{{ order.total_amount|rupiah}}</td>
+                <td class="px-6 py-4">
+                    <button class="text-blue-500 hover:underline" data-order-id="{{ order.id }}" onclick="openOrderModal(event)">View</button>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not orders %}
+            <tr>
+            <td colspan="6" class="text-center text-gray-500 py-10">
+                <div class="flex flex-col items-center justify-center space-y-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                <p class="text-sm">No orders found.</p>
+                </div>
+            </td>
+            </tr>
+            {% endif %}
+        </tbody>
+        </table>
+    </div>
+    </div>
+
+    <div id="orderModal" class="fixed inset-0 z-50 bg-jet-500/40 hidden flex items-center justify-center">
+        <!-- Modal Content -->
+        <div class="bg-white w-full max-w-md mx-auto rounded-2xl shadow-xl p-6 relative">
+            
+            <!-- Close Button -->
+            <button onclick="closeOrderModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl font-bold">
+            &times;
+            </button>
+
+            <!-- Order Header -->
+            <div class="mb-4">
+            <h2 class="text-lg font-bold text-gray-800">Order Details</h2>
+            <p class="text-sm text-gray-500" id="header">#ORD12345 • 2025-08-08</p>
+            </div>
+
+            <!-- Order Info -->
+            <div class="space-y-2 text-sm text-gray-700">
+            <div>
+                <strong>Customer:</strong> Azrian Hs
+            </div>
+            <div>
+                <strong>Status:</strong>
+                <span class="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                Completed
+                </span>
+            </div>
+            <div>
+                <strong>Items:</strong>
+                <ul class="ml-4 list-disc text-gray-600">
+                <li>Coffee Latte x 2 — Rp 50.000</li>
+                <li>Matcha x 1 — Rp 35.000</li>
+                <li>Service Fee — Rp 15.000</li>
+                </ul>
+            </div>
+            <div>
+                <strong>Total:</strong> Rp 150.000
+            </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-6 text-right">
+            <button id="cancel" onclick="serveOrder()" class="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600">
+                Cancel
+            </button>
+            <button id="update" onclick="serveOrder()" class="px-4 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600">
+                Update
+            </button>
+            <button id="serve" onclick="serveOrder()" class="px-4 py-2 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600">
+                Serve
+            </button>
+            <button onclick="document.getElementById('orderModal').classList.add('hidden')" class="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                Close
+            </button>
+            </div>
+        </div>
+        </div>
+
+  </main>
+{% endblock %} {% block script %}
+<script>
+    let detailOrder = {}
+
+    function openOrderModal(e) {
+        const orderId = e.target.getAttribute('data-order-id');
+        getDataDetailOrder(orderId);
+        document.getElementById('orderModal').classList.remove('hidden');
+    }
+
+    function closeOrderModal() {
+        document.getElementById('orderModal').classList.add('hidden');
+    }
+
+    function getDataDetailOrder(orderId) {
+        // Simulate fetching order details
+        const orderDetails = {
+            id: orderId,
+            customer: 'Azrian Hs',
+            date: '2025-08-08',
+            status: 'Completed',
+            items: [
+                { name: 'Coffee Latte', quantity: 2, price: 50000 },
+                { name: 'Matcha', quantity: 1, price: 35000 },
+                { name: 'Service Fee', quantity: 1, price: 15000 }
+            ],
+            total: 150000
+        };
+
+        fetch('/worker/order/summary/' + orderId)
+            .then(response => response.json())
+            .then(data => {
+                detailOrder = data;
+                renderOrderDetails();
+            })
+            .catch(error => {
+                console.error('Error fetching order details:', error);
+            });
+    }
+
+    function renderOrderDetails() {
+        const modalContent = document.querySelector('#orderModal .space-y-2');
+        const header = document.getElementById('header');
+        header.textContent = `#ORD${detailOrder.order_id} • ${detailOrder.date}`;
+        modalContent.innerHTML = `
+            <div><strong>Customer:</strong> ${detailOrder.customer_name}</div>
+            <div><strong>Status:</strong> <span class="inline-block ${statusColor(detailOrder.status)} text-xs font-semibold px-2 py-0.5 rounded-full">${detailOrder.status}</span></div>
+            <div><strong>Items:</strong>
+                <ul class="ml-4 list-disc text-gray-600">
+                    ${detailOrder.items.map(item => `<li>${item.product_name} x ${item.quantity} — ${formatRupiah(item.total)}</li>`).join('')}
+                </ul>
+            </div>
+            <div><strong>Subtotal:</strong>${formatRupiah(detailOrder.subtotal)}</div>
+            <div><strong>Tax:</strong>${formatRupiah(detailOrder.tax)}</div>
+            <div><strong>Total:</strong>${formatRupiah(detailOrder.total_amount)}</div>
+        `;
+    }
+
+    function statusColor(status) {
+        switch (status) {
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-700';
+            case 'in_progress':
+                return 'bg-blue-100 text-blue-700';
+            case 'completed':
+                return 'bg-green-100 text-green-700';
+            default:
+                return 'bg-red-100 text-red-700';
+        }
+    }
+
+    function serveOrder() {
+        // Simulate serving the order
+        const orderId = detailOrder.order_id;
+        const query = new URLSearchParams({ serve: true }).toString();
+        fetch(`/worker/order/update/${orderId}/?${query}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ order_id: orderId}),
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Order served successfully!');
+                closeOrderModal();
+                // Optionally, refresh the order list
+                location.reload();
+            } else {
+                alert('Failed to serve order. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error serving order:', error);
+            alert('An error occurred while serving the order.');
+        });
+    }
+</script>
+{% endblock %}
